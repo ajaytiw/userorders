@@ -20,17 +20,17 @@ class OrderController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $orders = Order::where('order_name', 'like', '%' . $request->search . '%')
-                ->paginate(1);
+                ->paginate(5);
                 $users = User::all();
         }else{
-            $orders = Order::paginate(1);
+            $orders = Order::paginate(5);
             $users = User::all();
         }
 
         if ($users_id) {
             $query->whereIn('user_id', (array) $users_id); // Cast to array if needed
         }
-        $orders = $query->paginate(1); // Adjust the pagination as needed
+        $orders = $query->paginate(5); // Adjust the pagination as needed
     
 
         return view('frontend.orders.index', compact('orders','users'));

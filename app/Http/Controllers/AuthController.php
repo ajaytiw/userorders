@@ -22,7 +22,6 @@ class AuthController extends Controller
         ]);
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
-            // Authentication passed...
             return redirect()->route('dashboard');
         }else{
             $this->alert('Login Failed','Invalid Email or Password','danger');

@@ -9,6 +9,17 @@
 </head>
 <body class="bg-light">
 
+@if(session()->has('alert'))
+    @php
+        $alert = session('alert');
+    @endphp
+    <div class="alert alert-{{ $alert['type'] }} alert-dismissible fade show" role="alert">
+        <strong>{{ $alert['msg'] }}</strong> {{ $alert['body'] }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
+
 <!-- Center the form using Flexbox -->
 <div class="d-flex justify-content-center align-items-center min-vh-100">
     <div class="card" style="width: 500px;">

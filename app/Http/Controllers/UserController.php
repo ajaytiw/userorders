@@ -16,13 +16,27 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+
+        $query = User::query();
+
         if ($request->has('search') && $request->search != '') {
-            $users = User::where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%')
-                ->paginate(1);
-        } else {
-            $users = User::paginate(1);
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
         }
+
+        if ($request->has('order_count')) {
+            if ($request->order_count == 'no_orders') {
+                $query->doesntHave('orders');
+            } elseif ($request->order_count == 'one') {
+                $query->has('orders', '=', 1);
+            } elseif ($request->order_count == 'greater_than_one') {
+                $query->has('orders', '>', 1);
+            }
+        }
+        
+        $users = $query->paginate(5);
+
+
         return view('frontend.users.index', compact('users'));
     }
 
@@ -56,6 +70,7 @@ class UserController extends Controller
         try {
             $user->save();
             return response()->json(['success'=>'User created successfully.']);
+
         } catch (\Throwable $th) {
             return response()->json(['error'=>$th->getMessage()]);
         }

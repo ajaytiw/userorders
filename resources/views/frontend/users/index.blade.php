@@ -17,6 +17,30 @@
                     </button>
                 </form>
 
+                <form action="{{ route('users.index') }}" method="GET" class="d-flex align-items-center">
+                    <label for="orderFilter" class="form-label mb-0">Filter by Order Count:</label>
+                    <div class="form-check ms-3">
+                        <input class="form-check-input" type="radio" name="order_count" value="no_orders" {{ request()->order_count == 'no_orders' ? 'checked' : '' }} />
+                        <label class="form-check-label" for="zeroOrders">Zero Orders</label>
+                    </div>
+
+                    <!-- Radio Button for 1 Order -->
+                    <div class="form-check ms-3">
+                        <input class="form-check-input" type="radio" name="order_count" value="one" {{ request()->order_count == 'one' ? 'checked' : '' }} />
+                        <label class="form-check-label" for="oneOrder">1 Order</label>
+                    </div>
+
+                    <!-- Radio Button for 1+ Orders -->
+                    <div class="form-check ms-3">
+                        <input class="form-check-input" type="radio" name="order_count" value="greater_than_one" {{ request()->order_count == 'greater_than_one' ? 'checked' : '' }} />
+                        <label class="form-check-label" for="greaterThanOne">1+ Orders</label>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm ms-2">
+                        <i class="bx bx-filter-alt"></i> Filter
+                    </button>
+                </form>
+
+
                 @if (Auth::user()->can('createUser', App\Models\User::class))
                     <small class="float-end btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addNewUserModal">Create New</small>
                 @endif
@@ -183,14 +207,14 @@
                     _token: _token
                 },
                 success: function(response) {
+                    console.log(response);
                     if (response.success) {
-                        location.reload();
+                        // location.reload();
                         $('#usersTable tbody').prepend('<tr><td>' + name + '</td><td>' + email + '</td></tr>');
                         $('#new_user_form')[0].reset();
                         $('#addNewUserModal').modal('hide');
                         toast('Success', 'User Created Successfully', 'success');
                         $('.submit_btn').prop('disabled', false);
-
                     }
                 },
                 error: function(response) {
