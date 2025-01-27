@@ -43,7 +43,8 @@ class OrderController extends Controller
      */
     public function create()
     {
-        //
+        $users = User::all();
+        return view('frontend.orders.create',compact('users'));
     }
 
     /**
@@ -53,8 +54,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-
+    {      
         $request->validate([
             'name'=>'required', 
             'assigned_to'=>'required',
@@ -64,12 +64,13 @@ class OrderController extends Controller
         $order->order_name = $request->name;
         $order->user_id = $request->assigned_to;
 
-        try {
-            $order->save();
-            return response()->json(['success'=>'Order created successfully.']);
-        } catch (\Throwable $th) {
-            return response()->json(['error'=>$th->getMessage()]);
+        if($order->save()){
+
+            $this->alert('Success','Order Added successfully','success');
+            return redirect()->route('orders.index');
         }
+        $this->alert('error','Something went wrong','error');
+        return redirect()->back();
 
     }
 

@@ -64,13 +64,8 @@
 
         <!-- Layout container -->
         <div class="layout-page">
-          <!-- Navbar -->
-
-        
-
           <x-frontend.navbar />
           <!-- / Navbar -->
-
           <!-- Content wrapper -->
           <div class="content-wrapper">
             <div class="container-xxl flex-grow-1 container-p-y">
@@ -86,21 +81,8 @@
         </div>
         <!-- / Layout page -->
       </div>
-
       <!-- Overlay -->
-      <div class="layout-overlay layout-menu-toggle"></div>
-          
-      </div>
-
       <div>
-      <div class="bs-toast toast toast-placement-ex m-2 fade  top-0 end-0 hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="2000">
-          <div class="toast-header">
-              <i class="bx bx-bell me-2"></i>
-              <div class="me-auto fw-semibold" id="toastHead"></div>
-              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-          </div>
-          <div class="toast-body" id="toastBody"></div>
-      </div>
     </div>
     <!-- / Layout wrapper -->
     <!-- build:js assets/vendor/js/core.js -->
@@ -114,38 +96,31 @@
     <!-- Main JS -->
     <script src="../assets/js/main.js"></script>
     <script src="../assets/js/ui-toasts.js"></script>
-      <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-      <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js"></script>
 
-
-@if(session()->has('alert'))
-    @php
-        $alert = session('alert');
-    @endphp
-    <div class="alert alert-{{ $alert['type'] }} alert-dismissible fade show" role="alert">
-        <strong>{{ $alert['msg'] }}</strong> {{ $alert['body'] }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-
-      @if(session()->has('alert'))
-      @php
-          $alert = Session::get('alert');
-          $toastHead = $alert['msg'];
-          $toastBody = $alert['body'];
-          $toastType = $alert['type'];
-      @endphp
-      <script>
-        $(document).ready(function() {
-          toast('{{ $toastHead }}','{{ $toastBody }}','{{ $toastType }}');
-        });
-      </script>
+    @if(session()->has('alert'))
+        @php
+            $alert = session('alert');
+            $toastHead = $alert['msg'];
+            $toastBody = $alert['body'];
+            $toastType = $alert['type'];
+        @endphp
+        <script>
+            $(document).ready(function() {
+                if ('{{ $toastType }}' === 'success') {
+                    toastr.success('{{ $toastBody }}', '{{ $toastHead }}');
+                } else if ('{{ $toastType }}' === 'error') {
+                    toastr.error('{{ $toastBody }}', '{{ $toastHead }}');
+                } else {
+                    toastr.info('{{ $toastBody }}', '{{ $toastHead }}');
+                }
+            });
+        </script>
     @endif
-
-      @yield('scripts')
       
+    @yield('scripts')
   </body>
 </html>

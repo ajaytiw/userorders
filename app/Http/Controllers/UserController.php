@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Http\Request;
 
@@ -57,23 +58,37 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // $request->validate([
+        //     'name'=>'required', 
+        //     'email'=>'required|email',
+        //     'password'=>'required|min:5',
+        // ]);
+
+        $validation = Validator::make($request->all(),[ 
             'name'=>'required', 
-            'email'=>'required|email',
-            'password'=>'required|min:5',
+             'email'=>'required|email',
+             'password'=>'required|min:5',
         ]);
-
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        try {
-            $user->save();
-            return response()->json(['success'=>'User created successfully.']);
-
-        } catch (\Throwable $th) {
-            return response()->json(['error'=>$th->getMessage()]);
+    
+        if($validation->fails()){
+            return response()->json(['success'=>'false', 'data'=> $validation->errors()->toArray()]);
+    
+        } else{
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            try {
+                $user->save();
+                return response()->json(['success'=>'true']);
+    
+            } catch (\Throwable $th) {
+                return response()->json(['success'=>'false']);
+                
+            }
         }
+
+        
     }
 
     /**

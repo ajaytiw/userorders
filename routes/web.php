@@ -38,4 +38,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('users', UserController::class);
     Route::resource('orders', OrderController::class);
 
+    // Route::get('/orders/create', [OrderController::class, 'create'])->name('order.form');
+
+
 });

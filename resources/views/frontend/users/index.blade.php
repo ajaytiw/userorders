@@ -117,17 +117,21 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Name</label>
-                            <input type="text" required id="name" name="name" class="form-control" placeholder="Enter Name">
+                            <input type="text"  id="name" name="name" class="form-control" placeholder="Enter Name">
                             @error('name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Email</label>
-                            <input type="text" required id="email" name="email" class="form-control" placeholder="Enter Email">
+                            <input type="text" id="email" name="email" class="form-control" placeholder="Enter Email">
                             @error('email')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
+                        </div>
+
+                        <div id="error-messages">
+
                         </div>
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Password</label>
@@ -207,19 +211,24 @@
                     _token: _token
                 },
                 success: function(response) {
-                    console.log(response);
-                    if (response.success) {
-                        // location.reload();
+
+                    if(response.success=='true'){
+
                         $('#usersTable tbody').prepend('<tr><td>' + name + '</td><td>' + email + '</td></tr>');
                         $('#new_user_form')[0].reset();
                         $('#addNewUserModal').modal('hide');
                         toast('Success', 'User Created Successfully', 'success');
                         $('.submit_btn').prop('disabled', false);
+
+                    }else{
+                        console.log(response);
+                        handleValidationErrors(response.data);
                     }
+
+                   
                 },
                 error: function(response) {
                     $('.submit_btn').prop('disabled', false);
-                    toast('Error', 'Something Went Wrong', 'error');
                 }
             });
         });
@@ -276,6 +285,28 @@
             });
         });
     });
+
+
+
+    function handleValidationErrors(errors) {
+    // Clear any previous error messages
+    const errorContainer = document.getElementById('error-messages'); // You can change this to your actual error container ID.
+    errorContainer.innerHTML = '';
+
+    // Loop through all the error keys and generate error messages
+    for (let field in errors) {
+        if (errors.hasOwnProperty(field)) {
+            // Get the error messages for the field (assuming it's an array)
+            errors[field].forEach(function (message) {
+                const errorText = document.createElement('div');
+                errorText.classList.add('alert', 'alert-danger'); // Add bootstrap alert classes for styling
+                errorText.textContent = message;
+                errorContainer.appendChild(errorText);
+            });
+        }
+    }
+}
+
 </script>
 
 

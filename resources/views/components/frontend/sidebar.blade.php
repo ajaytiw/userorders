@@ -72,8 +72,6 @@
         </li>
 
         <!-- Users -->
-
-
         <li class="menu-item {{ request()->routeIs('users.index') ? 'active' : '' }}">
             <a href="{{route('users.index')}}" class="menu-link">
                 <i class="menu-icon icon-base bx bx-chat"></i>
@@ -82,13 +80,31 @@
         </li>
        
         <!-- Orders -->
-
-
-        <li class="menu-item {{ request()->routeIs('orders.index') ? 'active' : '' }}">
-            <a href="{{route('orders.index')}}" class="menu-link">
-                <i class="menu-icon icon-base bx bx-chat"></i>
-                <div data-i18n="Orders">Orders</div>
+   
+        <li class="menu-item {{ request()->routeIs('orders.index') || request()->routeIs('orders.create') ? 'active' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-home-smile"></i>
+                <div class="text-truncate" data-i18n="Orders">Orders</div>
             </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{ route('orders.create') }}" class="menu-link {{ request()->routeIs('orders.create') ? 'active' : '' }}">
+                        <div class="text-truncate" data-i18n="Create">Create</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{ route('orders.index') }}" class="menu-link {{ request()->routeIs('orders.index') ? 'active' : '' }}">
+                        <div class="text-truncate" data-i18n="List">List</div>
+                    </a>
+                </li>
+            </ul>
         </li>
+
+        
+     
+      </ul>
+    </li>
+
+
         </ul>
     </aside>
