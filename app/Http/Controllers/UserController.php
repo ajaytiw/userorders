@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -24,7 +23,6 @@ class UserController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('email', 'like', '%' . $request->search . '%');
         }
-
         if ($request->has('order_count')) {
             if ($request->order_count == 'no_orders') {
                 $query->doesntHave('orders');
@@ -36,8 +34,6 @@ class UserController extends Controller
         }
         
         $users = $query->paginate(5);
-
-
         return view('frontend.users.index', compact('users'));
     }
 
@@ -58,12 +54,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name'=>'required', 
-        //     'email'=>'required|email',
-        //     'password'=>'required|min:5',
-        // ]);
-
         $validation = Validator::make($request->all(),[ 
             'name'=>'required', 
              'email'=>'required|email',
@@ -72,7 +62,6 @@ class UserController extends Controller
     
         if($validation->fails()){
             return response()->json(['success'=>'false', 'data'=> $validation->errors()->toArray()]);
-    
         } else{
             $user = new User();
             $user->name = $request->name;
@@ -80,14 +69,11 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
             try {
                 $user->save();
-                return response()->json(['success'=>'true']);
-    
+                return response()->json(['success'=>'true','message' => 'User created successfully!']);
             } catch (\Throwable $th) {
                 return response()->json(['success'=>'false']);
-                
             }
         }
-
         
     }
 
@@ -122,27 +108,28 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-
-        $request->validate([
-            'name'=>'required', 
-            'email'=>'required|email',
-            'password'=>'nullable|min:5',
+        $validation = Validator::make($request->all(),[ 
+             'name'=>'required', 
+             'email'=>'required|email',
+             'edit_password'=>'nullable|min:5',
         ]);
-
-        $user = User::find($request->id);
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->edit_password);
-        }
-
-        try {
-            $user->save();
-            return response()->json(['success' => 'User updated successfully.']);
-        } catch (\Throwable $th) {
-            return response()->json(['error' => $th->getMessage()]);
+    
+        if($validation->fails()){
+            return response()->json(['success'=>'false', 'data'=> $validation->errors()->toArray()]);
+        }else{
+            $user = User::find($request->id);
+            $user->name = $request->name;
+            $user->email = $request->email;
+    
+            if ($request->filled('edit_password')) {
+                $user->password = Hash::make($request->edit_password);
+            }
+            try {
+                $user->save();
+                return response()->json(['success'=>'true','message' => 'User Updated successfully!']);
+            } catch (\Throwable $th) {
+                return response()->json(['success'=>'false']);
+            }
         }
     }
 
@@ -154,7 +141,6 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-
         $user = User::find($id);
         try {
             $user->delete();

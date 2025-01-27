@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\{Order,User};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 
 class OrderController extends Controller
 {
@@ -15,23 +17,18 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $users_id = $request->user_id;
-
         $query = Order::query();
 
-        if ($request->has('search') && $request->search != '') {
-            $orders = Order::where('order_name', 'like', '%' . $request->search . '%')
-                ->paginate(5);
-                $users = User::all();
-        }else{
-            $orders = Order::paginate(5);
-            $users = User::all();
+        if ($request->has('search')) {
+            $query->where('order_name', 'like', '%' . $request->search . '%');
         }
 
         if ($users_id) {
-            $query->whereIn('user_id', (array) $users_id); // Cast to array if needed
+            $query->where('user_id', $users_id);
         }
-        $orders = $query->paginate(5); // Adjust the pagination as needed
-    
+
+        $orders = $query->paginate(5); 
+        $users = User::all();
 
         return view('frontend.orders.index', compact('orders','users'));
     }
@@ -55,22 +52,31 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {      
-        $request->validate([
+        // $request->validate([
+        //     'name'=>'required', 
+        //     'assigned_to'=>'required',
+        // ]);
+
+        $validation = Validator::make($request->all(),[ 
             'name'=>'required', 
             'assigned_to'=>'required',
         ]);
 
-        $order = new Order();
-        $order->order_name = $request->name;
-        $order->user_id = $request->assigned_to;
+        if($validation->fails()){
+            return response()->json(['success'=>'false', 'data'=> $validation->errors()->toArray()]);
+        }else{
+            $order = new Order();
+            $order->order_name = $request->name;
+            $order->user_id = $request->assigned_to;
 
-        if($order->save()){
-
-            $this->alert('Success','Order Added successfully','success');
-            return redirect()->route('orders.index');
+            try {
+                $order->save();
+                return response()->json(['success'=>'true','message' => 'Order created successfully!']);
+            } catch (\Throwable $th) {
+                return response()->json(['success'=>'false']);
+                
+            }
         }
-        $this->alert('error','Something went wrong','error');
-        return redirect()->back();
 
     }
 
@@ -106,20 +112,28 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
 
-        $request->validate([
+        // $request->validate([
+        //     'name' => 'required|string|max:255',  
+        //     'assigned_to' => 'required',
+        // ]);
+        $validation = Validator::make($request->all(),[ 
             'name' => 'required|string|max:255',  
             'assigned_to' => 'required',
-        ]);
-    
-        try {
+       ]);
+
+        if($validation->fails()){
+            return response()->json(['success'=>'false', 'data'=> $validation->errors()->toArray()]);
+        }else{
+
+            $order = Order::find($request->id);
             $order->order_name = $request->name;
             $order->user_id = $request->assigned_to;  
-    
-            $order->save();
-    
-            return response()->json(['success' => 'Order updated successfully.']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()]);
+            try {
+                $order->save();
+                return response()->json(['success'=>'true','message' => 'Order Updated successfully!']);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()]);
+            }
         }
     }
 

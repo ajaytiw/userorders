@@ -36,6 +36,9 @@
                     </button>
                 </form>
 
+                <a href="{{ route('orders.index') }}" class="btn btn-secondary btn-sm ms-2">Reset Filter</a>
+
+
                 @if (Auth::user()->can('createUser', App\Models\User::class))
                     <small class="float-end btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addNewOrderModal">Create New</small>
                 @endif
@@ -46,7 +49,6 @@
                 <table class="table table-hover mb-0" id="orderTable">
                     <thead class="table table-primary">
                         <tr>
-                            <th scope="col">Id</th>
                             <th scope="col">Order Name</th>
                             <th scope="col">Ordered By</th>
                             <th scope="col">Created At</th>
@@ -57,7 +59,6 @@
                     <tbody>
                         @forelse ($orders as $order)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
                             <td>{{ $order->order_name }}</td>
                             <td>{{ $order->user->name }}</td>
                             <td>{{ $order->created_at->format('d-m-Y')}}</td>
@@ -90,7 +91,7 @@
                 </table>
 
                 <div class="d-flex justify-content-center mt-2">
-                    {!! $orders->links('pagination::bootstrap-4') !!}
+                    {{ $orders->links() }}
                 </div>
             </div>
         </div>
@@ -110,6 +111,10 @@
             <form action="" method="POST" id="new_order_form">
                 @csrf
                 <div class="modal-body">
+
+                <div id="error-messages">
+                </div>
+
                     <div class="row">
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Order Name</label>
@@ -147,12 +152,15 @@
             </div>
             <form action="" method="POST" id="edit_user_form">
                 @csrf
+
+                <div id="error-messagess">
+                </div>
                 <input type="hidden" name="" id="id">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Order Name</label>
-                            <input type="text" required id="edit_name" name="edit_name" class="form-control" placeholder="Enter Name">
+                            <input type="text"  id="edit_name" name="edit_name" class="form-control" placeholder="Enter Name">
                         </div>
 
                         <div class="col-md-6">
@@ -177,6 +185,8 @@
 @endsection
 
 @section('scripts')
+<script src="../assets/js/common.js"></script>
+
 <script>
     $(document).ready(function() {
 
@@ -197,19 +207,23 @@
                     _token: _token
                 },
                 success: function(response) {
-                    if (response.success) {
+                    // if (response.success) {
+                    if(response.success=='true'){
                         location.reload();
                         $('#orderTable tbody').prepend('<tr><td>' + name + '</td><td>' + assigned_to + '</td></tr>');
                         $('#new_order_form')[0].reset();
                         $('#addNewOrderModal').modal('hide');
-                        toast('Success', 'Order Created Successfully', 'success');
+                        toastr.success(response.message);
+                        $('.submit_btn').prop('disabled', false);
+
+                    }else{
+                        order_add_validation(response.data);
                         $('.submit_btn').prop('disabled', false);
 
                     }
                 },
                 error: function(response) {
                     $('.submit_btn').prop('disabled', false);
-                    toast('Error', 'Something Went Wrong', 'error');
                 }
             });
         });
@@ -251,21 +265,27 @@
                     _token: _token
                 },
                 success: function(response) {
-                    if (response.success) {
+                    if (response.success=='true') {
                         location.reload();
                         $('#orderTable tbody').prepend('<tr><td>' + name + '</td><td>' + assigned_to + '</td></tr>');
                         $('#edit_user_form')[0].reset();
                         $('#editOrderModal').modal('hide');
-                        toast('Success', 'User Updated Successfully', 'success');
+                        toastr.success(response.message);
                         $('.update_btn').prop('disabled', false);
-                    }
+                    }else{
+                    
+                            console.log(response);
+                            order_update_validation(response.data);
+                            $('.update_btn').prop('disabled', false);
+                        }
+                    
                 },
                 error: function(response) {
                     $('.update_btn').prop('disabled', false);
-                    toast('Error', 'Something Went Wrong', 'error');
                 }
             });
         });
     });
+
 </script>
 @endsection

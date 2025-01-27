@@ -40,6 +40,7 @@
                     </button>
                 </form>
 
+                <a href="{{ route('users.index') }}" class="btn btn-secondary btn-sm ms-2">Reset Filter</a>
 
                 @if (Auth::user()->can('createUser', App\Models\User::class))
                     <small class="float-end btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addNewUserModal">Create New</small>
@@ -92,7 +93,7 @@
                     </tbody>
                 </table>
                 <div class="d-flex justify-content-center mt-2">
-                    {!! $users->links('pagination::bootstrap-4') !!}
+                    {{ $users->links()  }}
                 </div>
 
             </div>
@@ -131,7 +132,6 @@
                         </div>
 
                         <div id="error-messages">
-
                         </div>
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Password</label>
@@ -159,6 +159,9 @@
                 <h5 class="modal-title" id="exampleModalLabel2">Edit User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <div id="error-messagess">
+            </div>
             <form action="" method="POST" id="edit_user_form">
                 @csrf
                 <input type="hidden" name="" id="id">
@@ -166,11 +169,11 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Name</label>
-                            <input type="text" required id="edit_name" name="name" class="form-control" placeholder="Enter Name">
+                            <input type="text" id="edit_name" name="name" class="form-control" placeholder="Enter Name">
                         </div>
                         <div class="col-md-6">
                             <label for="nameSmall" class="form-label">Email</label>
-                            <input type="text" required id="edit_email" name="email" class="form-control" placeholder="Enter Email">
+                            <input type="text" id="edit_email" name="email" class="form-control" placeholder="Enter Email">
                         </div>
                        
                         <div class="col-md-6">
@@ -190,6 +193,8 @@
 @endsection
 
 @section('scripts')
+<script src="../assets/js/common.js"></script>
+
 <script>
     $(document).ready(function() {
 
@@ -211,29 +216,24 @@
                     _token: _token
                 },
                 success: function(response) {
-
                     if(response.success=='true'){
 
                         $('#usersTable tbody').prepend('<tr><td>' + name + '</td><td>' + email + '</td></tr>');
                         $('#new_user_form')[0].reset();
                         $('#addNewUserModal').modal('hide');
-                        toast('Success', 'User Created Successfully', 'success');
+                        toastr.success(response.message);
                         $('.submit_btn').prop('disabled', false);
-
                     }else{
                         console.log(response);
                         handleValidationErrors(response.data);
+                        $('.submit_btn').prop('disabled', false);
                     }
-
-                   
                 },
                 error: function(response) {
                     $('.submit_btn').prop('disabled', false);
                 }
             });
         });
-
-        // edit user 
 
         $(".edit_user").click(function(e) {
             e.preventDefault();
@@ -249,8 +249,6 @@
 
         $('#edit_user_form').on('submit', function(e) {
             e.preventDefault();
-
-           
             $('.update_btn').prop('disabled', true);
             let id = $('#id').val();
             let name = $('#edit_name').val();
@@ -269,44 +267,26 @@
                     _token: _token
                 },
                 success: function(response) {
-                    if (response.success) {
-                        location.reload();
+                    if(response.success=='true'){
                         $('#usersTable tbody').prepend('<tr><td>' + name + '</td><td>' + email + '</td></tr>');
                         $('#edit_user_form')[0].reset();
                         $('#editUserModal').modal('hide');
-                        toast('Success', 'User Updated Successfully', 'success');
+                        toastr.success(response.message);
+                        $('.update_btn').prop('disabled', false);
+                    }else{
+                        console.log(response);
+                        handleValidateUpdate(response.data);
                         $('.update_btn').prop('disabled', false);
                     }
                 },
                 error: function(response) {
                     $('.update_btn').prop('disabled', false);
-                    toast('Error', 'Something Went Wrong', 'error');
                 }
             });
         });
     });
 
-
-
-    function handleValidationErrors(errors) {
-    // Clear any previous error messages
-    const errorContainer = document.getElementById('error-messages'); // You can change this to your actual error container ID.
-    errorContainer.innerHTML = '';
-
-    // Loop through all the error keys and generate error messages
-    for (let field in errors) {
-        if (errors.hasOwnProperty(field)) {
-            // Get the error messages for the field (assuming it's an array)
-            errors[field].forEach(function (message) {
-                const errorText = document.createElement('div');
-                errorText.classList.add('alert', 'alert-danger'); // Add bootstrap alert classes for styling
-                errorText.textContent = message;
-                errorContainer.appendChild(errorText);
-            });
-        }
-    }
-}
-
+   
 </script>
 
 
