@@ -217,6 +217,7 @@
                 },
                 success: function(response) {
                     if(response.success=='true'){
+                    location.reload();
 
                         $('#usersTable tbody').prepend('<tr><td>' + name + '</td><td>' + email + '</td></tr>');
                         $('#new_user_form')[0].reset();
